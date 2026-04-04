@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>S.T.E.A.M. Clicker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ── HUD ───────────────────────────────────────────────── -->
+  <div id="hud">
+    <div class="brand">⚙ S.T.E.A.M.</div>
+    <div id="stats">
+      <div class="stat"><span class="v" id="steamCounter">0</span><span class="l">Vapeur</span></div>
+      <div class="stat"><span class="v" id="steamRateTotal">0</span><span class="l">/sec</span></div>
+      <div class="stat"><span class="v" id="steamPerSecondBoost">0</span><span class="l">Boosté</span></div>
+      <div class="stat"><span class="v" id="materialCount">0</span><span class="l">Matér.</span></div>
+      <div class="stat"><span class="v" id="goldCounter">0</span><span class="l">💰 Or</span></div>
+    </div>
+    <div class="hud-actions">
+      <button class="hud-btn" id="questBtn" title="Quêtes [Q]">📜</button>
+      <button class="hud-btn" id="achBtn"   title="Succès [A]">🏆</button>
+    </div>
+  </div>
+
+  <!-- ── LAYOUT ─────────────────────────────────────────────── -->
+  <div id="layout">
+
+    <!-- PANNEAU GAUCHE -->
+    <div class="panel left" id="leftPanel">
+      <div class="panel-head">
+        <div class="panel-title">⚙️ Boutique d'Inventeur</div>
+        <button class="toggle" id="leftToggle">◀</button>
+      </div>
+      <div class="panel-body">
+        <div class="bulk-row" id="buyFactorBtns">
+          <button class="bulk-btn on" data-bulk="1">×1</button>
+          <button class="bulk-btn" data-bulk="5">×5</button>
+          <button class="bulk-btn" data-bulk="10">×10</button>
+          <button class="bulk-btn" data-bulk="50">×50</button>
+          <button class="bulk-btn" data-bulk="100">×100</button>
+          <button class="bulk-btn" data-bulk="max">Max</button>
+        </div>
+        <div id="shopTabs">
+          <button class="shopTab active" data-tab="gears">⚙ Gears</button>
+          <button class="shopTab" data-tab="artisans">👨‍🔧 Art.</button>
+          <button class="shopTab" data-tab="structures">🏗 Struct.</button>
+          <button class="shopTab" data-tab="gold">💰 Or</button>
+        </div>
+        <div id="shopList"></div>
+      </div>
+    </div>
+
+    <!-- ZONE CENTRALE -->
+    <div id="center">
+      <div id="modeSwitch">
+        <button class="mode-button active" id="etabliMode">⚙️ Établi</button>
+        <button class="mode-button locked"  id="workshopMode">🏭 Atelier</button>
+      </div>
+      <div id="boostGauge">
+        <div class="t">⚡ Boost Manivelle</div>
+        <div id="boostBar"><div id="boostFill"></div><div id="boostPct">0%</div></div>
+      </div>
+
+      <!-- MODE ÉTABLI -->
+      <div id="gearView">
+        <div id="gearContainer">
+          <div id="rings"></div>
+          <div id="chains"></div>
+          <div id="pyramids"></div>
+          <div class="gear-core">
+            <div id="mainGear"></div>
+            <div id="crankHandle"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MODE ATELIER -->
+      <div id="workshopView" class="hidden">
+        <div id="centralMachine">
+          <div class="machine-window">
+            <div class="mini-gear"></div>
+            <div class="mini-gear"></div>
+            <div class="mini-gear"></div>
+            <div class="mini-gear"></div>
+          </div>
+          <div class="steam-pipe">
+            <div class="steam-particle"></div>
+            <div class="steam-particle"></div>
+            <div class="steam-particle"></div>
+          </div>
+          <div class="machine-status">
+            <div class="status-light"></div>
+            <div class="status-light"></div>
+            <div class="status-light"></div>
+            <div class="status-light"></div>
+          </div>
+        </div>
+        <div id="artisansLayer"></div>
+      </div>
+
+      <div id="instruction">
+        <div class="a">🔧 Actionnez la Manivelle Maîtresse !</div>
+        <div class="b">Clic maintenu · [M]+molette pour turbo boost</div>
+      </div>
+    </div>
+
+    <!-- PANNEAU DROIT -->
+    <div class="panel right" id="rightPanel">
+      <div class="panel-head">
+        <button class="toggle" id="rightToggle">▶</button>
+        <div class="panel-title">📊 Statistiques</div>
+      </div>
+      <div class="panel-body">
+        <div class="card">
+          <div class="card-title">⚡ Production</div>
+          <div class="stat-row"><span class="lbl">Vapeur Totale</span><span class="val" id="steamTotalDisplay">0</span></div>
+          <div class="stat-row"><span class="lbl">Mécanismes</span><span class="val" id="gearCount">0</span></div>
+          <div class="stat-row"><span class="lbl">Artisans</span><span class="val" id="artisanCount">0</span></div>
+          <div class="stat-row"><span class="lbl">Anneaux</span><span class="val" id="ringCountDisplay">0</span></div>
+          <div class="stat-row"><span class="lbl">Boost</span><span class="val" id="currentBoostDisplay">+0%</span></div>
+          <div class="stat-row"><span class="lbl">Or Total</span><span class="val" id="goldTotalDisplay">0</span></div>
+        </div>
+        <div class="card">
+          <div class="card-title">🎯 Prochain Objectif <span id="nextMilestone" class="gold">1K</span></div>
+          <div class="progress-wrap"><div class="progress-fill" id="milestoneProgress"></div></div>
+        </div>
+        <div class="card">
+          <div class="card-title">🏆 Succès Récents</div>
+          <div id="recentAchievements" class="muted small">Aucun succès récent</div>
+        </div>
+        <div class="card">
+          <div class="card-title">⚡ Actions</div>
+          <div class="actions-grid">
+            <button class="action-btn btn-blue"   id="saveBtn">💾 Sauver</button>
+            <button class="action-btn btn-green"  id="refreshBtn">🔄 Actu.</button>
+            <button class="action-btn btn-purple" id="refundBtn">💸 Rembours.</button>
+            <button class="action-btn btn-red"    id="resetBtn">🗑 Reset</button>
+            <button class="action-btn btn-orange" id="exportBtn">📤 Export</button>
+            <button class="action-btn btn-orange" id="importBtn">📥 Import</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── MODALS ──────────────────────────────────────────────── -->
+  <div id="achievementModal" class="modal hidden">
+    <div class="box">
+      <div class="modal-head">
+        <h2>🏆 Succès de l'Inventeur</h2>
+        <button class="modal-close" id="closeAch">×</button>
+      </div>
+      <div class="grid-cards" id="achievementGrid"></div>
+    </div>
+  </div>
+
+  <div id="questModal" class="modal hidden">
+    <div class="box">
+      <div class="modal-head">
+        <h2>📜 Quêtes de l'Inventeur</h2>
+        <button class="modal-close" id="closeQuest">×</button>
+      </div>
+      <div class="quest-tabs">
+        <button class="qtab active" data-qt="daily">Journalières</button>
+        <button class="qtab" data-qt="global">Globales</button>
+        <button class="qtab" data-qt="secret">Secrètes</button>
+      </div>
+      <div class="grid-cards" id="questGrid"></div>
+    </div>
+  </div>
+
+  <input id="fileInput" type="file" accept="application/json" class="hidden"/>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>
