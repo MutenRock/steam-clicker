@@ -1375,7 +1375,7 @@ function updateGearShop() {
         item.style.cssText = `background: ${bgColor}; border: 2px solid ${borderColor}; border-radius: 12px; padding: 16px; cursor: ${canAfford ? 'pointer' : 'not-allowed'}; transition: all 0.3s ease; opacity: ${canAfford ? '1' : '0.7'}; position: relative; overflow: hidden; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3), inset 0 2px 4px rgba(255, 255, 255, 0.1); margin-bottom: 8px; display: flex; align-items: center; gap: 12px;`;
 
         item.innerHTML = `
-            <div style="width: 40px; height: 40px; background-image: url('${gear.svg}'); background-size: cover; background-position: center; border-radius: 50%; border: 2px solid ${gear.color}; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);"></div>
+            <div style="width: 40px; height: 40px; display:flex;align-items:center;justify-content:center;font-size:1.6rem; border-radius: 50%; border: 2px solid ${gear.color}; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);"></div>
             <div style="flex: 1;">
                 <div style="font-family: 'Cinzel', serif; font-weight: bold; color: var(--brass-light); margin-bottom: 4px; font-size: 15px; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);">${gear.name} (${owned})</div>
                 <div style="font-family: 'Crimson Text', serif; color: var(--parchment); font-size: 12px; margin-bottom: 8px; line-height: 1.4;">
