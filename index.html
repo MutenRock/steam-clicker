@@ -1123,7 +1123,40 @@
             opacity: 0.7;
             cursor: not-allowed;
         }
-    </style>
+    
+        .machine-zone {
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            gap:32px;
+            position:relative;
+            min-height:360px;
+        }
+        .gear-decor, .gear-decor img { pointer-events:none; }
+        .gear-decor { position:absolute; inset:0; }
+        .gear-decor img {
+            position:absolute;
+            opacity:.18;
+            filter: drop-shadow(0 0 8px rgba(0,0,0,.35));
+            animation: decoSpin 14s linear infinite;
+        }
+        .gear-decor img.g1 { left:4%; top:14%; width:64px; }
+        .gear-decor img.g2 { right:6%; top:32%; width:54px; animation-duration:18s; }
+        .gear-decor img.g3 { left:10%; bottom:14%; width:72px; animation-duration:22s; }
+        @keyframes decoSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        #mainGear {
+            width:180px; height:180px;
+            background-image:url('./assets/main-gear.svg');
+            background-size:contain; background-repeat:no-repeat; background-position:center;
+            transition:transform .05s linear;
+        }
+        .manivelle-svg-wrap img {
+            width:100%; height:100%; object-fit:contain;
+            transform-origin:50% 50%;
+            transition: transform .08s linear;
+        }
+
+        </style>
 </head>
 <body>
 

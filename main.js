@@ -352,74 +352,16 @@ function handleClick() {
   checkAchievements();
 }
 
-// ─── BOOST (molette) ───────────────────────────────────────
 function handleWheel(delta) {
-  if (delta < 0) {
-    // molette vers le haut = boost
-  } else {
-  }
-    updateQuestProgress('max_boost', gameState.maxBoostReached);
-    updateQuestProgress('max_boost_daily', gameState.maxBoostReached);
-  }
-  calculateProduction();
   updateDisplay();
+  calculateProduction();
 }
 
 function getBoostDecayRate() {
-  // Pas de décroissance si blueprint cryo_idle ou style Cryovap actif
-  if (gameState.blueprints.bp_cryo_idle) return 0;
-  const style = MACHINE_STYLES.find(s => s.id === gameState.currentMachineStyle);
-  if (style && style.bonus.noBoostDecay) return 0;
-  const baseLoss = getTransmissionLoss();
+  return 0;
 }
 
 function decayBoost() {}
-
-
-
-// ═══════════════════════════════════════════════════════════
-// ACHATS
-// ═══════════════════════════════════════════════════════════
-
-// ─── Phase 1 : Acheter engrenage ──────────────────────────
-async function buyGear(gearId, qty = 1) {
-  const gear = GEAR_TYPES.find(g => g.id === gearId);
-  if (!gear) return;
-
-  // Coût total (scaling ×1.15 par engrenage déjà possédé de ce type)
-  const owned = gameState.gears[gearId] || 0;
-  let totalCost = 0;
-  let scaledCost = gear.cost;
-  // réduction si blueprint / style
-  const costReduction = getCostReduction();
-  scaledCost = Math.floor(scaledCost * costReduction);
-  for (let i = 0; i < qty; i++) {
-    totalCost += Math.floor(scaledCost * Math.pow(1.15, owned + i));
-  }
-
-  if (gameState.steam < totalCost) return;
-
-  gameState.steam -= totalCost;
-  gameState.steamTotal += totalCost;
-  if (typeof gameState.materials !== 'object' || gameState.materials === null) gameState.materials = {};
-  gameState.gears[gearId] = (gameState.gears[gearId] || 0) + qty;
-  if (gear.material) gameState.materials[gear.material] = (gameState.materials[gear.material] || 0) + qty;
-
-  // Chaîne à 99
-  const newCount = gameState.gears[gearId];
-  if (newCount >= 99 && !gameState.gearChains[gear.tier]) {
-    gameState.gearChains[gear.tier] = true;
-    showToast(`🔗 Chaîne maximale — ${gear.name} ×1.5 prod !`, '#cd7f32');
-  }
-
-  calculateProduction();
-  updateDisplay();
-  updateShops();
-  checkPhaseUnlocks();
-  checkAchievements();
-  updateQuestProgress('gear_buy_daily', qty);
-  saveGameState();
-}
 
 function getCostReduction() {
   const style = MACHINE_STYLES.find(s => s.id === gameState.currentMachineStyle);
@@ -758,12 +700,6 @@ function updateMilestone() {
 }
 
 function updateBoostDisplay() {}
-
-async function updateGoldDisplay() {
-  if (!goldSystemEnabled) return;
-  const gold = await getGold();
-  safeSetText('#goldCount', gold);
-}
 
 // ─── Shop engrenages ─────────────────────────────────────
 function updateGearShop() {
@@ -1980,8 +1916,8 @@ function tickGearVisual() {
 
 function setCrankVisual(angleDeg) {
   crankRotation = Math.max(-200, Math.min(200, angleDeg));
-  const arm = document.getElementById('crankArm');
-  if (arm) arm.setAttribute('transform', `rotate(${crankRotation}, 40, 80)`);
+  const wrap = document.getElementById('manivelleHandle');
+  if (wrap) wrap.style.transform = `rotate(${crankRotation}deg)`;
   const maxB = getMaxBoost();
   calculateProduction();
   updateBoostDisplay();
@@ -2028,8 +1964,8 @@ decayBoost = function() {
   _origDecayBoost();
   if (Math.abs(crankRotation) > 1) {
     crankRotation += (targetAngle - crankRotation) * 0.08;
-    const arm = document.getElementById('crankArm');
-    if (arm) arm.setAttribute('transform', `rotate(${crankRotation}, 40, 80)`);
+    const wrap = document.getElementById('manivelleHandle');
+    if (wrap) wrap.style.transform = `rotate(${crankRotation}deg)`;
   }
   updateManivelleUI();
 };
