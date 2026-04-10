@@ -1285,7 +1285,6 @@ function checkQuests() {
     updateQuestProgress('all_upgrades_max', 0);
 }
 
-async 
 function triggerCoinExplosion(x, y) {
   // Animation coins désactivée — stub silencieux
 }
