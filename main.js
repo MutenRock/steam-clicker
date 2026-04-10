@@ -928,17 +928,7 @@ function updateBlueprintDisplay() {
     container.appendChild(el);
   }
 }
-
-function updateAllShops() {
-  updateGearShop();
-  updateUnitShop();
-  updateChainDisplay();
-  updateBlueprintDisplay();
-  updateGoldShop();
-  updatePlayerShop();
-}
 // alias
-function updateShops() { updateAllShops(); }
 
 // ─── Phase UI ────────────────────────────────────────────
 function updatePhaseUI() {
