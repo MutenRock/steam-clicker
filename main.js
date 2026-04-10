@@ -1767,6 +1767,7 @@ async function init() {
   window.reconnectAuth       = () => console.log('Mode local');
   window.refreshAllDisplays  = async () => { calculateProduction(); updateDisplay(); updateAllShops(); };
 
+  initManivelleEvents();
   console.log(`✅ Phase ${gameState.phase} | Prestige ${gameState.prestigeCount} | ${formatNumber(gameState.steamPerSecond)}/s`);
 }
 
@@ -1982,6 +1983,81 @@ async function refreshAllDisplays() {
   updateAllShops();
 }
 
+
+
+// ═══════════════════════════════════════════════════════════
+// MANIVELLE — rotation visuelle + interaction
+// ═══════════════════════════════════════════════════════════
+
+let gearRotation  = 0;
+let crankRotation = 0;
+
+function tickGearVisual() {
+  const prod  = gameState.steamPerSecond + gameState.steamPerSecondBoost;
+  const speed = Math.min(6, Math.log10(Math.max(1, prod)) * 0.7);
+  gearRotation = (gearRotation + speed) % 360;
+  const gear = document.getElementById('mainGear');
+  if (gear) gear.style.transform = `rotate(${gearRotation}deg)`;
+}
+
+function setCrankVisual(angleDeg) {
+  crankRotation = Math.max(-200, Math.min(200, angleDeg));
+  const arm = document.getElementById('crankArm');
+  if (arm) arm.setAttribute('transform', `rotate(${crankRotation}, 40, 80)`);
+  const maxB = getMaxBoost();
+  gameState.clickBoost = ((crankRotation + 200) / 400) * maxB;
+  calculateProduction();
+  updateBoostDisplay();
+  updateManivelleUI();
+}
+
+function updateManivelleUI() {
+  const pct = gameState.clickBoost;
+  const max = getMaxBoost();
+  const fill = document.getElementById('manivelleBoostFill');
+  const txt  = document.getElementById('manivelleBoostPct');
+  if (fill) {
+    fill.style.height = Math.min(100, (pct / max) * 100) + '%';
+    fill.classList.toggle('boosted', pct > max * 0.6);
+  }
+  if (txt) txt.textContent = Math.round(pct) + '%';
+}
+
+function startCrank(e) {
+  e.preventDefault();
+  handleClick();
+  const newAngle = crankRotation + 22;
+  setCrankVisual(newAngle > 200 ? -180 : newAngle);
+  setTimeout(() => setCrankVisual(crankRotation - 8), 90);
+}
+
+function initManivelleEvents() {
+  // Molette sur la zone machine
+  document.addEventListener('wheel', (e) => {
+    const zone = document.getElementById('machineZone');
+    if (!zone || !e.target.closest('#machineZone')) return;
+    e.preventDefault();
+    const delta = e.deltaY > 0 ? -18 : 18;
+    setCrankVisual(crankRotation + delta);
+    handleClick();
+  }, { passive: false });
+
+  // Loop visuel 60fps
+  setInterval(tickGearVisual, 16);
+}
+
+// Décroissance manivelle (override decayBoost)
+const _origDecayBoost = decayBoost;
+decayBoost = function() {
+  _origDecayBoost();
+  if (Math.abs(crankRotation) > 1) {
+    const targetAngle = (gameState.clickBoost / getMaxBoost()) * 400 - 200;
+    crankRotation += (targetAngle - crankRotation) * 0.08;
+    const arm = document.getElementById('crankArm');
+    if (arm) arm.setAttribute('transform', `rotate(${crankRotation}, 40, 80)`);
+  }
+  updateManivelleUI();
+};
 
 document.addEventListener('DOMContentLoaded', () => init());
 

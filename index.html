@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Crimson+Text:wght@400;600&display=swap" rel="stylesheet">
     <style>
+
         body {
             font-family: 'Crimson Text', 'Times New Roman', serif;
             background: linear-gradient(135deg, #2c1810, #3e2723, #1a0d08);
@@ -1123,18 +1124,468 @@
             opacity: 0.7;
             cursor: not-allowed;
         }
-    </style>
+    
+        /* ══════════════════════════════════════════════
+           STEAM CLICKER 2.0 — NOUVEAUX STYLES
+        ══════════════════════════════════════════════ */
+
+        /* ── Phase tabs ─────────────────────────────── */
+        .phase-tabs {
+            display: flex;
+            gap: 4px;
+            padding: 10px 12px 0;
+            border-bottom: 2px solid var(--brass-dark);
+        }
+        .phase-tab {
+            font-family: 'Cinzel', serif;
+            font-size: .65rem;
+            letter-spacing: .12em;
+            padding: 7px 14px;
+            border-radius: 6px 6px 0 0;
+            border: 1.5px solid transparent;
+            cursor: pointer;
+            transition: all .2s;
+            background: none;
+            color: #5a4a2a;
+        }
+        .phase-tab.unlocked  { color: var(--parchment); border-color: var(--brass-dark); background: rgba(139,69,19,.3); }
+        .phase-tab.active    { color: var(--brass-light); border-color: var(--brass); background: rgba(139,69,19,.6); border-bottom-color: transparent; }
+        .phase-tab.locked    { opacity: .35; cursor: not-allowed; }
+
+        .phase-panel         { display: none; padding: 10px 0; }
+        .phase-panel.active  { display: block; }
+
+        /* ── Progress Phase 2 ───────────────────────── */
+        .phase-progress-wrap {
+            margin: 8px 12px;
+            background: #1a0d08;
+            border: 1px solid var(--brass-dark);
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+            height: 20px;
+        }
+        .phase-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #1a3a5a, #5b9bd5);
+            transition: width .5s;
+            width: 0%;
+        }
+        .phase-progress-text {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .58rem;
+            color: var(--parchment);
+            font-family: 'Cinzel', serif;
+            letter-spacing: .08em;
+        }
+
+        /* ── Shop items v2 ──────────────────────────── */
+        .shop-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 10px;
+            border-radius: 6px;
+            border: 1px solid var(--brass-dark);
+            background: rgba(0,0,0,.25);
+            margin-bottom: 6px;
+            transition: all .2s;
+        }
+        .shop-item:hover      { border-color: var(--brass); background: rgba(139,69,19,.2); }
+        .shop-item.locked     { opacity: .55; }
+        .shop-item-icon       { font-size: 1.4rem; width: 28px; text-align: center; flex-shrink: 0; }
+        .shop-item-info       { flex: 1; min-width: 0; }
+        .shop-item-name       { font-family: 'Cinzel', serif; font-size: .65rem; color: var(--brass-light); letter-spacing: .06em; }
+        .shop-item-desc       { font-size: .6rem; color: #8a7a5a; margin-top: 1px; }
+        .shop-item-count      { font-size: .58rem; color: #6a5a3a; margin-top: 2px; }
+        .shop-item-right      { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
+        .shop-item-cost       { font-family: 'Cinzel', serif; font-size: .62rem; }
+        .can-afford           { color: #90ee90; }
+        .cant-afford          { color: #e05050; }
+        .buy-btn {
+            font-family: 'Cinzel', serif;
+            font-size: .55rem;
+            padding: 3px 10px;
+            border-radius: 4px;
+            border: 1px solid var(--brass);
+            background: rgba(139,69,19,.4);
+            color: var(--brass-light);
+            cursor: pointer;
+            transition: all .15s;
+        }
+        .buy-btn:hover:not(:disabled) { background: rgba(139,69,19,.8); }
+        .buy-btn:disabled     { opacity: .4; cursor: not-allowed; }
+        .buy-10               { border-color: var(--steel); color: #8bbde8; background: rgba(20,50,80,.3); }
+        .chain-badge          { background: #1a2a0a; border: 1px solid #4CAF50; color: #7fce82;
+                                border-radius: 8px; padding: 1px 6px; font-size: .5rem;
+                                margin-left: 5px; font-family: 'Cinzel', serif; }
+        .locked-msg           { text-align: center; color: #4a3a2a; font-style: italic;
+                                font-size: .75rem; padding: 20px 0; }
+
+        /* ── Chain display ──────────────────────────── */
+        .chain-wrap {
+            display: flex;
+            align-items: center;
+            overflow-x: auto;
+            padding: 16px 12px;
+            gap: 0;
+            min-height: 160px;
+        }
+        .chain-node {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 120px;
+            flex-shrink: 0;
+            position: relative;
+        }
+        .chain-node-box {
+            width: 108px;
+            border-radius: 8px;
+            border: 1.5px solid;
+            padding: 10px 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: default;
+            transition: all .25s;
+        }
+        .chain-node.ghost  .chain-node-box { border-color: #1e3050; background: linear-gradient(160deg,#06090f,#0a0f18); opacity: .7; }
+        .chain-node.active .chain-node-box { border-color: #5b9bd5; background: linear-gradient(160deg,#0a1828,#0f2035); box-shadow: 0 0 20px #5b9bd533; }
+        .chain-node.future .chain-node-box { border: 1.5px dashed #1a2a3a; background: transparent; opacity: .3; }
+        .chain-node-run   { font-size: .48rem; font-family: 'Cinzel', serif; letter-spacing: .1em;
+                            position: absolute; top: -9px; left: 50%; transform: translateX(-50%);
+                            white-space: nowrap; padding: 1px 7px; border-radius: 8px; }
+        .chain-node.ghost  .chain-node-run { background: #060a12; border: 1px solid #1e3050; color: #2a4a6a; }
+        .chain-node.active .chain-node-run { background: #0d1e30; border: 1px solid #5b9bd5; color: #5b9bd5; }
+        .chain-node-icon  { font-size: 1.6rem; }
+        .chain-node-name  { font-family: 'Cinzel', serif; font-size: .52rem; text-align: center; }
+        .chain-node.ghost  .chain-node-name { color: #2a4a6a; }
+        .chain-node.active .chain-node-name { color: #8bbde8; }
+        .chain-node-tags  { display: flex; gap: 3px; flex-wrap: wrap; justify-content: center; }
+        .chain-node-prod  { font-size: .58rem; margin-top: 2px; }
+        .chain-node.ghost  .chain-node-prod { color: #1e3050; }
+        .chain-node.active .chain-node-prod { color: #5b9bd5; }
+
+        .chain-connector  { display: flex; flex-direction: column; align-items: center;
+                            width: 52px; flex-shrink: 0; gap: 3px; position: relative; top: -10px; }
+        .conn-line        { width: 100%; height: 1.5px; background: linear-gradient(90deg,#1a2a3a,#2a3a4a,#1a2a3a); }
+        .conn-line.active { background: linear-gradient(90deg,#3a5a7a,#5b9bd5,#3a5a7a); box-shadow: 0 0 5px #5b9bd533; }
+        .conn-card        { width: 38px; height: 38px; border-radius: 7px; border: 1.5px solid;
+                            display: flex; flex-direction: column; align-items: center;
+                            justify-content: center; gap: 1px; cursor: pointer;
+                            transition: all .2s; background: #080e18; font-size: .85rem; }
+        .conn-card:hover  { transform: scale(1.12); }
+        .conn-card.grade-common   { border-color: #4a5a6a; color: #6a8a9a; }
+        .conn-card.grade-rare     { border-color: #4CAF50; color: #7fce82; box-shadow: 0 0 8px #4CAF5033; }
+        .conn-card.grade-epic     { border-color: #5b9bd5; color: #8bbde8; box-shadow: 0 0 10px #5b9bd544; }
+        .conn-card.grade-legendary{ border-color: #a78bfa; color: #c4b5fd; box-shadow: 0 0 14px #a78bfa55;
+                                    animation: legendPulse 2s ease-in-out infinite alternate; }
+        .conn-card .conn-grade    { font-size: .38rem; font-family: 'Cinzel', serif; letter-spacing: .05em; }
+        .conn-empty       { width: 38px; height: 38px; border-radius: 7px; border: 1.5px dashed #1a2a3a;
+                            color: #1a2a3a; font-size: 1.1rem; display: flex; align-items: center;
+                            justify-content: center; cursor: default; }
+        @keyframes legendPulse {
+            from { box-shadow: 0 0 10px #a78bfa44; }
+            to   { box-shadow: 0 0 22px #a78bfa88; }
+        }
+
+        /* ── Tag pills ──────────────────────────────── */
+        .tag-pill   { padding: 1px 5px; border-radius: 7px; font-size: .45rem; font-family: 'Cinzel', serif; }
+        .tag-meca   { background: #0d1e30; color: #5b9bd5; border: 1px solid #1a3a5a; }
+        .tag-therm  { background: #1a0e06; color: #e8803a; border: 1px solid #3a1a0a; }
+        .tag-cryo   { background: #04151a; color: #4dd0e1; border: 1px solid #0a2a32; }
+        .tag-quant  { background: #100818; color: #a78bfa; border: 1px solid #2a1540; }
+        .tag-idle   { background: #0a180a; color: #7fce82; border: 1px solid #1a3a1a; }
+
+        /* ── Blueprints ─────────────────────────────── */
+        .blueprint-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 10px;
+            border-radius: 6px;
+            border: 1px solid;
+            margin-bottom: 5px;
+            font-size: .7rem;
+            transition: all .2s;
+        }
+        .blueprint-item.active { border-color: #4CAF50; background: rgba(15,40,15,.4); color: var(--parchment); }
+        .blueprint-item.locked { border-color: #1a2a1a; background: rgba(0,0,0,.2); color: #3a5a3a; }
+        .blueprint-item b      { font-family: 'Cinzel', serif; font-size: .62rem; display: block; }
+        .blueprint-item small  { font-size: .55rem; opacity: .7; }
+
+        /* ── Prestige button ────────────────────────── */
+        .prestige-btn-zone { text-align: center; padding: 14px; border-top: 1px solid #0f1e2e; }
+        .prestige-btn {
+            font-family: 'Cinzel', serif;
+            background: linear-gradient(135deg, #0d1e38, #081628);
+            border: 1.5px solid #5b9bd5;
+            color: #8bbde8;
+            padding: 9px 26px;
+            border-radius: 7px;
+            cursor: pointer;
+            font-size: .75rem;
+            letter-spacing: .12em;
+            transition: all .3s;
+            box-shadow: 0 0 16px #5b9bd522;
+        }
+        .prestige-btn:hover { box-shadow: 0 0 32px #5b9bd555; transform: translateY(-2px); }
+        .prestige-hint { font-size: .62rem; color: #2a4a6a; margin-top: 5px; font-style: italic; }
+
+        /* ── Modals (prestige / connexion) ──────────── */
+        .draw-modal {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,.85);
+            z-index: 400;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(6px);
+        }
+        .draw-modal.show { display: flex; }
+        .draw-modal-box {
+            background: #08111e;
+            border: 1.5px solid #1a2a3a;
+            border-radius: 14px;
+            padding: 28px;
+            max-width: 640px;
+            width: 96%;
+            box-shadow: 0 24px 80px rgba(0,0,0,.9);
+        }
+        .draw-modal-title {
+            font-family: 'Cinzel', serif;
+            color: #5b9bd5;
+            text-align: center;
+            font-size: .95rem;
+            letter-spacing: .2em;
+            margin-bottom: 4px;
+        }
+        .draw-modal-sub {
+            text-align: center;
+            font-style: italic;
+            color: #3a5a7a;
+            font-size: .75rem;
+            margin-bottom: 22px;
+        }
+        .draw-cards { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+
+        /* Cards de tirage */
+        .m-card {
+            width: 162px;
+            border-radius: 10px;
+            border: 1.5px solid;
+            padding: 15px 11px 12px;
+            cursor: pointer;
+            transition: all .3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            position: relative;
+        }
+        .m-card:hover         { transform: translateY(-8px); }
+        .m-card.g-common      { border-color: #4a5a6a; background: linear-gradient(160deg,#09121e,#0c1825); }
+        .m-card.g-rare        { border-color: #4CAF50; background: linear-gradient(160deg,#06100a,#0a1810); box-shadow: 0 0 18px #4CAF5033; }
+        .m-card.g-epic        { border-color: #5b9bd5; background: linear-gradient(160deg,#07111e,#0c1a2e); box-shadow: 0 0 20px #5b9bd533; }
+        .m-card.g-legendary   { border-color: #a78bfa; background: linear-gradient(160deg,#09071a,#100e24);
+                                box-shadow: 0 0 30px #a78bfa55;
+                                animation: legendPulse 2s ease-in-out infinite alternate; }
+        .mc-grade { font-size: .5rem; letter-spacing: .18em; text-transform: uppercase; font-family: 'Cinzel', serif; }
+        .g-common  .mc-grade  { color: #6a8a9a; }
+        .g-rare    .mc-grade  { color: #7fce82; }
+        .g-epic    .mc-grade  { color: #5b9bd5; }
+        .g-legendary .mc-grade{ color: #a78bfa; }
+        .mc-icon  { font-size: 2.2rem; margin: 4px 0; }
+        .mc-name  { font-family: 'Cinzel', serif; font-size: .66rem; text-align: center; letter-spacing: .06em; }
+        .g-common  .mc-name   { color: #8a9aaa; }
+        .g-rare    .mc-name   { color: #7fce82; }
+        .g-epic    .mc-name   { color: #8bbde8; }
+        .g-legendary .mc-name { color: #c4b5fd; }
+        .mc-tags  { display: flex; gap: 3px; flex-wrap: wrap; justify-content: center; }
+        .mc-bonus { font-size: .63rem; color: #6a8a9a; text-align: center; line-height: 1.5;
+                    border-top: 1px solid rgba(255,255,255,.06); padding-top: 7px; width: 100%; }
+        .mc-bonus b { color: #c8d8e8; }
+        .mc-synflag { font-size: .56rem; color: #a78bfa; text-align: center; margin-top: 2px; }
+        .mc-btn {
+            margin-top: 6px; width: 100%; padding: 5px;
+            border-radius: 5px; border: 1px solid;
+            font-family: 'Cinzel', serif; font-size: .56rem; letter-spacing: .1em;
+            cursor: pointer; background: none; transition: all .2s;
+        }
+        .g-common  .mc-btn { border-color: #4a5a6a; color: #6a8a9a; }
+        .g-rare    .mc-btn { border-color: #4CAF50; color: #7fce82; }
+        .g-epic    .mc-btn { border-color: #5b9bd5; color: #5b9bd5; }
+        .g-legendary .mc-btn{ border-color: #a78bfa; color: #a78bfa; }
+        .mc-btn:hover { opacity: .8; background: rgba(255,255,255,.04); }
+
+        /* ── Synergies panel ────────────────────────── */
+        .syn-panel { margin: 0 10px 10px; background: rgba(0,0,0,.3);
+                     border: 1px solid #0f1e2e; border-radius: 6px; padding: 10px 12px; }
+        .syn-head  { font-family: 'Cinzel', serif; color: #3a5a7a; font-size: .6rem;
+                     letter-spacing: .18em; margin-bottom: 7px; }
+        .syn-item  { display: flex; align-items: center; gap: 7px; font-size: .65rem; margin-bottom: 4px; }
+        .syn-dot   { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+        .syn-on    { color: var(--parchment); }
+        .syn-off   { color: #2a3a4a; }
+
+        /* ── Toast ──────────────────────────────────── */
+        .steam-toast {
+            position: fixed; bottom: 24px; right: 24px;
+            background: #08111e; border: 1.5px solid;
+            border-radius: 8px; padding: 10px 16px;
+            font-family: 'Cinzel', serif; font-size: .72rem;
+            letter-spacing: .08em; z-index: 500;
+            animation: toastIn .3s ease, toastOut .3s ease 2.8s forwards;
+            box-shadow: 0 4px 24px rgba(0,0,0,.6);
+        }
+        @keyframes toastIn  { from { opacity:0; transform: translateY(10px); } to { opacity:1; transform: translateY(0); } }
+        @keyframes toastOut { from { opacity:1; } to { opacity:0; } }
+
+        /* ── Ajustement left panel pour tabs ────────── */
+        .left-panel .panel-content { padding: 0; }
+        .phase-panel { padding: 8px 10px; }
+        .phase-section-title {
+            font-family: 'Cinzel', serif;
+            font-size: .65rem;
+            letter-spacing: .15em;
+            color: var(--brass-light);
+            margin-bottom: 8px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid var(--brass-dark);
+        }
+
+        /* ══════════════════════════════════════════
+           MANIVELLE & MACHINE CENTRALE
+        ══════════════════════════════════════════ */
+
+        .machine-zone {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 48px;
+            padding: 20px 0;
+            position: relative;
+        }
+
+        /* ── Engrenage principal ─────────────────── */
+        .main-gear-wrap {
+            position: relative;
+            width: 180px; height: 180px;
+        }
+        #mainGear {
+            width: 180px; height: 180px;
+            background-image: url('./assets/main-gear.svg');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            transition: transform 0.05s linear;
+            cursor: default;
+        }
+        /* Vapeur derrière l'engrenage */
+        .steam-cloud {
+            position: absolute;
+            bottom: -10px; left: 50%;
+            transform: translateX(-50%);
+            display: flex; gap: 6px;
+            pointer-events: none;
+        }
+        .steam-puff {
+            width: 12px; height: 12px;
+            border-radius: 50%;
+            background: rgba(180,220,255,0.35);
+            animation: puffUp 1.8s ease-out infinite;
+            filter: blur(3px);
+        }
+        .steam-puff:nth-child(2) { animation-delay: .6s;  width:16px; height:16px; }
+        .steam-puff:nth-child(3) { animation-delay: 1.2s; width:10px; height:10px; }
+        @keyframes puffUp {
+            0%   { opacity:0;   transform: translateY(0) scale(.5); }
+            40%  { opacity:.7;  transform: translateY(-18px) scale(1); }
+            100% { opacity:0;   transform: translateY(-40px) scale(1.4); }
+        }
+
+        /* ── Manivelle ───────────────────────────── */
+        .manivelle-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            user-select: none;
+        }
+        .manivelle-label {
+            font-family: 'Cinzel', serif;
+            font-size: .58rem;
+            letter-spacing: .15em;
+            color: var(--brass-dark);
+            text-transform: uppercase;
+        }
+        .manivelle-svg-wrap {
+            position: relative;
+            width: 80px; height: 160px;
+            cursor: pointer;
+        }
+        /* La valve SVG inline */
+        .manivelle-svg-wrap svg {
+            width: 100%; height: 100%;
+            overflow: visible;
+        }
+        /* Arc de débattement affiché derrière */
+        .manivelle-arc {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+        }
+        /* Barre de boost sur le côté */
+        .manivelle-boost-track {
+            width: 10px; height: 140px;
+            background: rgba(0,0,0,.4);
+            border: 1px solid var(--brass-dark);
+            border-radius: 5px;
+            position: relative;
+            overflow: hidden;
+        }
+        .manivelle-boost-fill {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            background: linear-gradient(0deg, #1a3a5a, #5b9bd5);
+            border-radius: 5px;
+            transition: height .15s;
+        }
+        .manivelle-boost-fill.boosted {
+            background: linear-gradient(0deg, #e8803a, #ffd700);
+        }
+        .manivelle-pct {
+            font-family: 'Cinzel', serif;
+            font-size: .65rem;
+            color: var(--brass-light);
+            margin-top: 3px;
+        }
+        .manivelle-hint {
+            font-size: .55rem;
+            color: var(--brass-dark);
+            font-style: italic;
+            text-align: center;
+            max-width: 90px;
+        }
+
+        </style>
 </head>
 <body>
 
     <div id="authWarning" class="auth-warning hidden">
-        <span>⚠️ Authentification requise pour utiliser le système d'or de l'atelier</span>
-        <button onclick="window.location.href='/lab/login.html'">Se connecter</button>
+        <span>⚠️ Authentification requise pour utiliser le système d'or</span>
+        <button onclick="console.log('Mode local')">Se connecter</button>
     </div>
 
     <div class="relative min-h-screen flex flex-col">
 
-        <div class="hud-bar">
+<div class="hud-bar">
             <div class="hud-content">
 
                 <div class="hud-section">
@@ -1157,6 +1608,19 @@
                     <div class="stat-item">
                         <div class="stat-value text-blue-400" id="materialCount">0</div>
                         <div class="stat-label">Matériaux</div>
+
+                    <div class="stat-item">
+                        <div class="stat-value text-purple-400" id="currentPhase">Phase 1</div>
+                        <div class="stat-label">Phase</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value text-blue-400" id="prestigeCount">0</div>
+                        <div class="stat-label">Prestiges</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value text-cyan-400" id="chainMult">×1.0</div>
+                        <div class="stat-label">Mult. Chaîne</div>
+                    </div>
                     </div>
                 </div>
 
@@ -1182,6 +1646,8 @@
             </div>
         </div>
 
+
+
         <div class="panel-container">
 
             <div class="left-panel" id="leftPanel">
@@ -1190,53 +1656,85 @@
                 </div>
 
                 <div class="panel-content" id="leftPanelContent">
-                    <!-- Visible en mode Etabli -->
-                    <div class="mb-6" id="gearWorkshop">
-                        <h3 class="text-lg font-bold text-orange-400 mb-4 text-center border-b pb-2">
-                            🔧 Mécanismes
-                        </h3>
-                        <div class="space-y-3" id="gearShopItems">
-                        </div>
+
+                    <!-- ── PHASE TABS ── -->
+                    <div class="phase-tabs">
+                        <button class="phase-tab unlocked active" data-phase="1">⚙️ Artisan</button>
+                        <button class="phase-tab locked"          data-phase="2">🏭 Atelier</button>
+                        <button class="phase-tab locked"          data-phase="3">⛓ Chaîne</button>
                     </div>
 
-                    <div class="mb-6" id="goldExchange" style="display: none;">
-                        <h3 class="text-lg font-bold text-yellow-400 mb-4 text-center border-b pb-2">
-                            🏆 Forge Alchimique
-                        </h3>
-                        <div class="space-y-3" id="goldShopItems">
+                    <!-- ══ PHASE 1 — ARTISAN ══ -->
+                    <div class="phase-panel active" data-phase="1">
+
+                        <!-- Progression Phase 2 -->
+                        <div style="margin: 10px 0 12px;">
+                            <div style="font-family:'Cinzel',serif;font-size:.58rem;color:#3a5a4a;letter-spacing:.12em;margin-bottom:4px;">
+                                🏭 PHASE 2 — ATELIER
+                            </div>
+                            <div class="phase-progress-wrap">
+                                <div class="phase-progress-bar" id="phase2Progress"></div>
+                                <div class="phase-progress-text" id="phase2ProgressText">0 / 100M</div>
+                            </div>
                         </div>
+
+                        <div class="phase-section-title">🔧 Engrenages</div>
+                        <div id="gearShopItems"></div>
+
+                        <!-- Gold exchange (conservé) -->
+                        <div id="goldExchange" style="display:none;">
+                            <div class="phase-section-title" style="color:var(--gold);">🏆 Forge Alchimique</div>
+                            <div id="goldShopItems"></div>
+                        </div>
+
                     </div>
 
-                    <!-- Visible en mode Atelier -->
-                    <div class="mb-6" id="workshopArtisans" style="display: none;">
-                        <h3 class="text-lg font-bold text-purple-400 mb-4 text-center border-b pb-2">
-                            🏭 Recrutement Atelier
-                        </h3>
-                        <div class="space-y-3" id="workshopArtisanItems">
+                    <!-- ══ PHASE 2 — ATELIER ══ -->
+                    <div class="phase-panel" data-phase="2">
+
+                        <div class="phase-section-title">👥 Recrutement</div>
+                        <div id="unitShopItems">
+                            <p class="locked-msg">🔒 Atteindre 100M vapeur totale</p>
                         </div>
+
+                        <div class="phase-section-title" style="margin-top:14px;">🏆 Forge Alchimique</div>
+                        <div id="goldShopItems2"></div>
+
                     </div>
 
-                    <div class="mb-6" id="evolutionWorkshop" style="display: none;">
-                        <h3 class="text-lg font-bold text-cyan-400 mb-4 text-center border-b pb-2">
-                            ⬆️ Évolutions Industrielles
-                        </h3>
-                        <div class="space-y-3" id="evolutionItems">
+                    <!-- ══ PHASE 3 — CHAÎNE ══ -->
+                    <div class="phase-panel" data-phase="3">
+
+                        <!-- Chaîne de machines -->
+                        <div class="phase-section-title">⛓ Réseau de Production</div>
+                        <div class="chain-wrap" id="chainDisplay">
+                            <p class="locked-msg">🔒 Déblocage au premier prestige</p>
                         </div>
+
+                        <!-- Synergies actives -->
+                        <div class="syn-panel" id="synergyPanel">
+                            <div class="syn-head">⚡ SYNERGIES</div>
+                            <div id="synergyList">
+                                <div class="syn-item"><div class="syn-dot" style="background:#2a3a4a"></div><span class="syn-off">Aucune synergie active</span></div>
+                            </div>
+                        </div>
+
+                        <!-- Blueprints -->
+                        <div class="phase-section-title" style="margin-top:12px;">📐 Blueprints</div>
+                        <div id="blueprintList"></div>
+
+                        <!-- Bouton prestige -->
+                        <div class="prestige-btn-zone">
+                            <button class="prestige-btn" onclick="openPrestigeModal()">⚡ RÉVOLUTION — Nouveau Run</button>
+                            <div class="prestige-hint" id="prestigeHint">Condense la machine actuelle · Choisissez le prochain run</div>
+                        </div>
+
                     </div>
+
                 </div>
             </div>
 
             <div class="center-area">
-
-                <!-- MODE SWITCH -->
-                <div class="mode-switch" id="modeSwitch">
-                    <button class="mode-button active" id="etabliMode" onclick="switchToEtabli()">
-                        ⚙️ Établi
-                    </button>
-                    <button class="mode-button locked" id="workshopMode" onclick="switchToWorkshop()">
-                        🏭 Atelier
-                    </button>
-                </div>
 
                 <!-- JAUGE DE BOOST -->
                 <div class="boost-gauge etabli" id="boostGauge">
@@ -1247,66 +1745,85 @@
                     </div>
                 </div>
 
-                <!-- MODE ETABLI -->
-                <div class="etabli-view" id="etabliView">
-                    <div class="gear-container" id="gearContainer">
-                        <div class="gear-rings" id="gearRings">
-                        </div>
 
-                        <div class="gear-chains" id="gearChains">
-                        </div>
+                <!-- ══ ZONE MACHINE + MANIVELLE ══ -->
+                <div class="machine-zone" id="machineZone">
 
-                        <div class="gear-pyramids" id="gearPyramids">
-                        </div>
+                    <!-- Manivelle gauche -->
+                    <div class="manivelle-wrap" id="manivelleWrap">
+                        <div class="manivelle-label">Manivelle</div>
+                        <div style="display:flex;gap:8px;align-items:center">
 
-                        <div class="relative" style="z-index: 10;">
-                            <div id="mainGear" style="background-image: url('./assets/main-gear.svg');">
+                            <!-- Barre de boost -->
+                            <div class="manivelle-boost-track">
+                                <div class="manivelle-boost-fill" id="manivelleBoostFill"></div>
+                            </div>
+
+                            <!-- SVG Valve/Manivelle -->
+                            <div class="manivelle-svg-wrap" id="manivelleHandle"
+                                 onmousedown="startCrank(event)"
+                                 ontouchstart="startCrank(event)">
+                                <svg viewBox="0 0 80 160" xmlns="http://www.w3.org/2000/svg">
+                                    <!-- Tuyau central -->
+                                    <rect x="34" y="0" width="12" height="160" rx="6"
+                                          fill="#2c1810" stroke="#8b6914" stroke-width="1.5"/>
+                                    <!-- Corps valve -->
+                                    <ellipse cx="40" cy="80" rx="18" ry="18"
+                                             fill="url(#valveGrad)" stroke="#d4af37" stroke-width="2"/>
+                                    <!-- Bras de manivelle (tourne) -->
+                                    <g id="crankArm" transform-origin="40 80">
+                                        <line x1="40" y1="80" x2="40" y2="42"
+                                              stroke="#b8860b" stroke-width="5" stroke-linecap="round"/>
+                                        <!-- Poignée -->
+                                        <circle cx="40" cy="38" r="8"
+                                                fill="url(#handleGrad)" stroke="#d4af37" stroke-width="1.5"/>
+                                        <!-- Rivets -->
+                                        <circle cx="40" cy="58" r="3" fill="#cd7f32"/>
+                                    </g>
+                                    <!-- Centre valve -->
+                                    <circle cx="40" cy="80" r="6" fill="#d4af37"/>
+                                    <!-- Defs gradients -->
+                                    <defs>
+                                        <radialGradient id="valveGrad" cx="40%" cy="35%">
+                                            <stop offset="0%"   stop-color="#8b6914"/>
+                                            <stop offset="100%" stop-color="#3e2000"/>
+                                        </radialGradient>
+                                        <radialGradient id="handleGrad" cx="40%" cy="35%">
+                                            <stop offset="0%"   stop-color="#d4af37"/>
+                                            <stop offset="100%" stop-color="#8b6914"/>
+                                        </radialGradient>
+                                    </defs>
+                                </svg>
                             </div>
                         </div>
-                    </div>
-                </div>
-
-                <!-- MODE ATELIER -->
-                <div class="workshop-view" id="workshopView">
-                    <div class="central-machine" id="centralMachine">
-                        <div class="machine-window">
-                            <div class="mini-gear gear-1"></div>
-                            <div class="mini-gear gear-2"></div>
-                            <div class="mini-gear gear-3"></div>
-                            <div class="mini-gear gear-4"></div>
-                        </div>
-
-                        <div class="steam-pipe">
-                            <div class="steam-output"></div>
-                            <div class="steam-particle" style="animation-delay: 0s;"></div>
-                            <div class="steam-particle" style="animation-delay: 0.5s;"></div>
-                            <div class="steam-particle" style="animation-delay: 1s;"></div>
-                        </div>
-
-                        <div class="machine-status">
-                            <div class="status-light green"></div>
-                            <div class="status-light yellow"></div>
-                            <div class="status-light red"></div>
-                            <div class="status-light blue"></div>
-                        </div>
+                        <div class="manivelle-pct" id="manivelleBoostPct">0%</div>
+                        <div class="manivelle-hint">Cliquez ou faites<br>tourner la molette</div>
                     </div>
 
-                    <div class="workshop-artisans" id="workshopArtisansContainer">
-                        <!-- Artisans positionnés autour de la machine -->
+                    <!-- Engrenage central + vapeur -->
+                    <div class="main-gear-wrap">
+                        <div class="steam-cloud">
+                            <div class="steam-puff"></div>
+                            <div class="steam-puff"></div>
+                            <div class="steam-puff"></div>
+                        </div>
+                        <div id="mainGear"></div>
                     </div>
+
                 </div>
 
                 <div class="instruction-plaque" id="instructionPlaque">
-                    <div class="text-yellow-300 font-bold" style="font-size: 1.25rem; font-family: 'Cinzel', serif; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);">
-                        🔧 Actionnez la Manivelle Maîtresse !
+                    <div class="text-yellow-300 font-bold" style="font-size:1.1rem;font-family:'Cinzel',serif;">
+                        ⚙️ Actionnez la Manivelle pour produire de la Vapeur !
                     </div>
-                    <div class="text-sm" style="font-family: 'Crimson Text', serif; margin-top: 8px; color: #fbbf24;">
-                        Maintenez le clic pour augmenter le boost de production !
+                    <div class="text-sm" style="font-family:'Crimson Text',serif;margin-top:6px;color:#fbbf24;">
+                        Cliquez · Molette · L'engrenage tourne selon votre production
                     </div>
                 </div>
+
             </div>
 
-            <div class="right-panel" id="rightPanel">
+<div class="right-panel" id="rightPanel">
                 <div class="panel-header">
                     <button class="panel-toggle" onclick="toggleRightPanel()" id="rightToggle">▶</button>
                     <div class="panel-title" id="rightPanelTitle">📊 Statistiques</div>
@@ -1336,7 +1853,7 @@
                         <div style="background: rgba(0, 0, 0, 0.3); border-radius: 8px; padding: 12px; border: 1px solid var(--brass);">
                             <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
                                 <span style="color: var(--parchment);">Vapeur Totale:</span>
-                                <span class="text-green-400 font-bold" id="steamTotalDisplay">0</span>
+                                <span class="text-green-400 font-bold" id="steamTotal">0</span>
                             </div>
                             <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
                                 <span style="color: var(--parchment);">Mécanismes:</span>
@@ -1409,10 +1926,12 @@
                     </div>
                 </div>
             </div>
+
+
         </div>
     </div>
 
-    <!-- MODALS -->
+<!-- MODALS -->
     <div id="achievementModal" class="achievement-modal hidden">
         <div class="achievement-modal-content">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
@@ -1433,6 +1952,46 @@
                 <button onclick="hideQuestModal()" style="background: var(--brass); border: 2px solid var(--copper-dark); color: var(--mahogany); width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 18px; font-weight: bold;">×</button>
             </div>
             <div class="quest-grid" id="questGrid">
+            </div>
+        </div>
+    </div>
+
+    
+    <!-- ══ MODAL PRESTIGE ══════════════════════════ -->
+    <div id="prestigeModal" class="draw-modal" onclick="if(event.target===this)closePrestigeModal()">
+        <div class="draw-modal-box">
+            <div class="draw-modal-title">✦ RÉVOLUTION INDUSTRIELLE ✦</div>
+            <div class="draw-modal-sub">
+                La machine actuelle devient un <b style="color:#5b9bd5">nœud fantôme</b> permanent ·
+                Choisissez le prochain run
+            </div>
+            <div class="draw-cards" id="prestigeCards"></div>
+            <div style="text-align:center;margin-top:18px;">
+                <button onclick="closePrestigeModal()"
+                    style="font-family:'Cinzel',serif;font-size:.6rem;letter-spacing:.1em;
+                           padding:6px 20px;border-radius:6px;border:1px solid #1a2a3a;
+                           background:none;color:#3a5a7a;cursor:pointer;">
+                    ✕ Annuler
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ MODAL CONNEXION ══════════════════════════ -->
+    <div id="connectionModal" class="draw-modal" onclick="if(event.target===this)closeConnectionModal()">
+        <div class="draw-modal-box">
+            <div class="draw-modal-title">🔗 CONNEXION DE CHAÎNE</div>
+            <div class="draw-modal-sub">
+                Choisissez le lien entre votre ancien nœud et la nouvelle machine
+            </div>
+            <div class="draw-cards" id="connectionCards"></div>
+            <div style="text-align:center;margin-top:18px;">
+                <button onclick="closeConnectionModal()"
+                    style="font-family:'Cinzel',serif;font-size:.6rem;letter-spacing:.1em;
+                           padding:6px 20px;border-radius:6px;border:1px solid #1a2a3a;
+                           background:none;color:#3a5a7a;cursor:pointer;">
+                    ✕ Passer (aucune connexion)
+                </button>
             </div>
         </div>
     </div>
