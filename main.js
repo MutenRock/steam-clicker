@@ -1087,7 +1087,7 @@ async function claimAchievement(achievementId) {
                 triggerCoinExplosion(achievementCard);
             }
 
-            await updateGoldDisplay();
+            updateGoldDisplay();
             saveGameState();
             updateAchievementsDisplay();
         }
@@ -1320,7 +1320,7 @@ function claimQuest(questId) {
         }
 
         if (quest.reward.gold) {
-            await addGold(quest.reward.gold);
+            addGold(quest.reward.gold);
             showGoldToast(quest.reward.gold, `🎯 Quête terminée: ${quest.name}`);
 
             const questElement = $(`[data-quest="${questId}"]`);
@@ -1328,7 +1328,7 @@ function claimQuest(questId) {
                 triggerCoinExplosion(questElement);
             }
 
-            await updateGoldDisplay();
+            updateGoldDisplay();
         }
 
         updateQuestProgress('daily_quests_completed', 1);
@@ -1507,7 +1507,7 @@ async function refreshGoldDisplay() {
     }
     try {
         await refreshGold();
-        await updateGoldDisplay();
+        updateGoldDisplay();
     } catch (error) {
         console.error('Gold refresh error:', error);
         showGoldToast(0, "Erreur de connexion au système d\'or");
