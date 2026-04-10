@@ -1780,5 +1780,218 @@ async function init() {
   console.log(`✅ Phase ${gameState.phase} | Prestige ${gameState.prestigeCount} | ${formatNumber(gameState.steamPerSecond)}/s`);
 }
 
+
+// ═══ FONCTIONS RÉCUPÉRÉES ════════════════════════════════
+function updateDailyQuestDisplay() {
+    const container = $('#dailyQuestDisplay');
+    if (!container) return;
+
+    const activeQuests = Object.values(gameState.dailyQuests).filter(q => !q.claimed);
+
+    if (activeQuests.length === 0) {
+        safeSetHTML('#dailyQuestDisplay', `
+            <div style="text-align: center; color: var(--brass-light);">
+                <div style="font-size: 16px; margin-bottom: 5px;">✅</div>
+                <div style="font-size: 12px;">Toutes les quêtes terminées</div>
+                <div style="font-size: 10px; color: #90EE90;">Revenez demain !</div>
+            </div>
+        `);
+        return;
+    }
+
+    const quest = activeQuests[0];
+    const progress = Math.min(quest.progress / quest.requirement.value, 1);
+    const progressPercent = Math.round(progress * 100);
+
+    safeSetHTML('#dailyQuestDisplay', `
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+            <div style="font-size: 20px;">${quest.icon}</div>
+            <div style="flex: 1;">
+                <div style="font-weight: bold; color: var(--brass-light); font-size: 12px;">${quest.name}</div>
+                <div style="font-size: 10px; color: var(--parchment); margin-bottom: 4px;">${quest.description}</div>
+                <div style="font-size: 10px; color: var(--gold);">🏆 ${quest.reward.gold} Or</div>
+            </div>
+        </div>
+        <div style="width: 100%; height: 6px; background: #2c1810; border-radius: 3px; overflow: hidden; margin-bottom: 8px;">
+            <div style="height: 100%; background: linear-gradient(90deg, #cd7f32, #ffd700); width: ${progressPercent}%; transition: width 0.3s ease;"></div>
+        </div>
+        <div style="font-size: 10px; text-align: center; color: var(--parchment);">
+            ${quest.progress} / ${quest.requirement.value} (${progressPercent}%)
+        </div>
+        ${quest.completed && !quest.claimed ? `
+            <button onclick="claimQuest('${quest.id}')" style="width: 100%; margin-top: 8px; padding: 4px; background: var(--gold); border: 1px solid var(--brass); border-radius: 4px; color: var(--mahogany); font-size: 10px; font-weight: bold; cursor: pointer;">
+                Réclamer Récompense
+            </button>
+        ` : ''}
+    `);
+}
+
+function updateQuestDisplay() {
+    const grid = $('#questGrid');
+    if (!grid) return;
+
+    grid.innerHTML = '';
+    let questsToShow = [];
+
+    switch (currentQuestTab) {
+        case 'daily':
+            questsToShow = Object.values(gameState.dailyQuests);
+            break;
+        case 'global':
+            questsToShow = Object.values(gameState.globalQuests);
+            GLOBAL_QUESTS.forEach(quest => {
+                if (!gameState.globalQuests[quest.id]) {
+                    questsToShow.push({ ...quest, completed: false, claimed: false, locked: true });
+                }
+            });
+            break;
+        case 'secret':
+            questsToShow = Object.values(gameState.secretQuests);
+            SECRET_QUESTS.forEach(quest => {
+                if (!gameState.secretQuests[quest.id]) {
+                    questsToShow.push({ ...quest, completed: false, claimed: false, locked: true, hidden: true });
+                }
+            });
+            break;
+    }
+
+    questsToShow.forEach(quest => {
+        const card = document.createElement('div');
+        card.className = `quest-card ${quest.completed ? 'completed' : ''} ${quest.locked ? 'locked' : ''}`;
+        card.setAttribute('data-quest', quest.id);
+
+        let progressBar = '';
+        let actionButton = '';
+
+        if (!quest.hidden) {
+            if (quest.progress !== undefined) {
+                const progressPercent = Math.min((quest.progress / quest.requirement.value) * 100, 100);
+                progressBar = `
+                    <div class="quest-progress">
+                        <div class="quest-progress-fill" style="width: ${progressPercent}%"></div>
+                    </div>
+                    <div style="font-size: 0.8rem; margin-bottom: 10px;">${quest.progress} / ${quest.requirement.value}</div>
+                `;
+            }
+
+            if (quest.completed && !quest.claimed) {
+                actionButton = `<button onclick="claimQuest('${quest.id}')" class="claim-quest-button">Réclamer ${quest.reward.gold} Or</button>`;
+            } else if (quest.claimed) {
+                actionButton = '<div style="color: var(--gold); font-weight: bold;">✓ Réclamé</div>';
+            }
+        }
+
+        card.innerHTML = `
+            <div class="quest-icon">${quest.hidden ? '❓' : quest.icon}</div>
+            <div class="quest-title">${quest.hidden ? 'Quête Mystère' : quest.name}</div>
+            <div class="quest-description">${quest.hidden ? 'Continuez à jouer pour découvrir cette quête secrète!' : quest.description}</div>
+            ${progressBar}
+            <div class="quest-reward">${quest.hidden ? '🏆 ???' : `🏆 ${quest.reward.gold} Or`}</div>
+            ${actionButton}
+        `;
+
+        grid.appendChild(card);
+    });
+
+    if (questsToShow.length === 0) {
+        grid.innerHTML = `
+            <div style="grid-column: 1 / -1; text-align: center; color: var(--parchment); font-style: italic; padding: 40px;">
+                Aucune quête ${currentQuestTab} disponible
+            </div>
+        `;
+    }
+}
+
+function updateAchievementsDisplay() {
+    const grid = $('#achievementGrid');
+    if (!grid) return;
+    grid.innerHTML = '';
+
+    for (const [achievementId, achievement] of Object.entries(ACHIEVEMENTS)) {
+        const isUnlocked = gameState.achievements.unlocked.includes(achievementId);
+        const isClaimed = gameState.achievements.claimed.includes(achievementId);
+
+        const card = document.createElement('div');
+        card.className = `achievement-card ${!isUnlocked ? 'locked' : ''} ${isClaimed ? 'claimed' : ''}`;
+        card.setAttribute('data-achievement', achievementId);
+
+        let statusInfo = '';
+        if (!isUnlocked) {
+            statusInfo = '<div style="color: #666; font-style: italic;">Succès Secret</div>';
+        } else if (!isClaimed && achievement.reward.gold) {
+            statusInfo = `<button onclick="claimAchievement('${achievementId}')" class="claim-button">Réclamer ${achievement.reward.gold} Or</button>`;
+        } else if (isClaimed) {
+            statusInfo = '<div style="color: var(--gold); font-weight: bold;">✓ Réclamé</div>';
+        }
+
+        card.innerHTML = `
+            <div class="achievement-icon">${achievement.icon}</div>
+            <div class="achievement-title">${isUnlocked ? achievement.name : '???'}</div>
+            <div class="achievement-description">${isUnlocked ? achievement.description : 'Succès masqué - Continuez à jouer pour le découvrir!'}</div>
+            ${statusInfo}
+        `;
+
+        if (isUnlocked) {
+            card.addEventListener('click', () => {
+                if (!card.querySelector('.claim-button')) {
+                    showGoldToast(0, `${achievement.icon} ${achievement.name}: ${achievement.description}`);
+                }
+            });
+        }
+        grid.appendChild(card);
+    }
+}
+
+function updateRecentAchievements() {
+    const container = $('#recentAchievements');
+    if (!container) return;
+
+    if (gameState.recentAchievements.length === 0) {
+        safeSetHTML('#recentAchievements', '<div style="font-size: 0.875rem; color: #9ca3af; text-align: center;">Aucun succès récent</div>');
+        return;
+    }
+
+    const achievementsHTML = gameState.recentAchievements.map(achievement => 
+        `<div onclick="showAchievementDetails('${achievement.message}')" style="font-size: 12px; color: var(--parchment); margin-bottom: 8px; padding: 8px; background: rgba(0, 0, 0, 0.4); border-radius: 6px; border: 1px solid var(--brass); cursor: pointer; transition: all 0.3s ease;" onmouseover="this.style.backgroundColor='rgba(212, 175, 55, 0.1)'" onmouseout="this.style.backgroundColor='rgba(0, 0, 0, 0.4)'"><div style="color: var(--brass-light); font-weight: bold;">${achievement.goldAmount > 0 ? '+' + achievement.goldAmount + ' 🏆' : '🏆'}</div><div style="font-family: 'Crimson Text', serif;">${achievement.message}</div></div>`
+    ).join('');
+
+    safeSetHTML('#recentAchievements', achievementsHTML);
+}
+
+function saveUIState() {
+    try {
+        localStorage.setItem('steamClickerUI', JSON.stringify(uiState));
+    } catch (error) {
+        console.warn('Failed to save UI state:', error);
+    }
+}
+
+function switchToEtabli() {  // CHANGEMENT : switchToLaboratory → switchToEtabli
+    gameState.mode = 'etabli';
+    updateModeDisplay();
+    updateShopsVisibility();
+    saveGameState();
+}
+
+function switchToWorkshop() {
+    if (gameState.steamTotal < 10000000) {
+        showGoldToast(0, "Atelier débloqué à 10M de vapeur totale");
+        return;
+    }
+    gameState.mode = 'workshop';
+    updateModeDisplay();
+    updateShopsVisibility();
+    updateWorkshopArtisans();
+    saveGameState();
+}
+
+
+async function refreshAllDisplays() {
+  calculateProduction();
+  updateDisplay();
+  updateAllShops();
+}
+
+
 document.addEventListener('DOMContentLoaded', () => init());
 
