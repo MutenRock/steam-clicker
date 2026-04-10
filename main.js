@@ -165,7 +165,6 @@ const MAX_BOOST_PERCENTAGE    = 200;
 let gameState = {
   // Ressources
   steam: 0, steamTotal: 0,
-  steamPerSecond: 0, steamPerSecondBoost: 0,
 
   // Phase 1 — Artisan
   gears: {},          // { gearId: count }
@@ -185,7 +184,6 @@ let gameState = {
   blueprints: {},     // { blueprintId: true }
 
   // Boost manivelle
-  clickBoost: 0, maxBoostReached: 0, lastClickTime: 0,
 
   // Progression
   totalClicks: 0, totalResets: 0,
@@ -241,11 +239,7 @@ function safeSetStyle(sel, prop, val) {
 // PRODUCTION & BOOST
 // ═══════════════════════════════════════════════════════════
 
-function getMaxBoost() {
-  const base = MAX_BOOST_PERCENTAGE;
-  const bonus = (gameState.playerUpgrades.boost_capacity || 0) * 10;
-  return base + bonus;
-}
+function getMaxBoost() { return 0; }
 
 function getTransmissionLoss() {
   const base = BOOST_TRANSMISSION_LOSS;
@@ -337,14 +331,12 @@ function calculateProduction() {
 
   // Boost manivelle
   const maxBoost = getMaxBoost();
-  const boostPct = gameState.clickBoost / maxBoost;
   let boostMult = 1;
   if (gameState.currentMachineStyle) {
     const style = MACHINE_STYLES.find(s => s.id === gameState.currentMachineStyle);
     if (style && style.bonus.activeMult && boostPct > 0) boostMult = style.bonus.activeMult;
     if (style && style.bonus.idleMult   && boostPct === 0) boostMult = style.bonus.idleMult;
   }
-  gameState.steamPerSecondBoost = staticProd * (gameState.clickBoost / 100) * boostMult;
 }
 
 // ─── CLIC (manivelle) ──────────────────────────────────────
@@ -364,12 +356,8 @@ function handleClick() {
 function handleWheel(delta) {
   if (delta < 0) {
     // molette vers le haut = boost
-    gameState.clickBoost = Math.min(gameState.clickBoost + 5, getMaxBoost());
   } else {
-    gameState.clickBoost = Math.max(gameState.clickBoost - 2, 0);
   }
-  if (gameState.clickBoost > gameState.maxBoostReached) {
-    gameState.maxBoostReached = gameState.clickBoost;
     updateQuestProgress('max_boost', gameState.maxBoostReached);
     updateQuestProgress('max_boost_daily', gameState.maxBoostReached);
   }
@@ -383,17 +371,9 @@ function getBoostDecayRate() {
   const style = MACHINE_STYLES.find(s => s.id === gameState.currentMachineStyle);
   if (style && style.bonus.noBoostDecay) return 0;
   const baseLoss = getTransmissionLoss();
-  return gameState.clickBoost * (baseLoss / 100);
 }
 
-function decayBoost() {
-  const decay = getBoostDecayRate();
-  if (decay > 0) {
-    gameState.clickBoost = Math.max(0, gameState.clickBoost - decay);
-    calculateProduction();
-    updateBoostDisplay();
-  }
-}
+function decayBoost() {}
 
 
 
@@ -630,7 +610,6 @@ function chooseMachine(styleId) {
   // Reset partiel
   gameState.steam          = 0;
   gameState.steamPerSecond = 0;
-  gameState.clickBoost     = 0;
   gameState.gears          = {};
   gameState.materials      = {};
   gameState.gearChains     = {};
@@ -724,7 +703,6 @@ function formatNumber(n) {
 
 // ─── Affichage principal ──────────────────────────────────
 function updateDisplay() {
-  const totalProd = gameState.steamPerSecond + gameState.steamPerSecondBoost;
   safeSetText('#steamCount',      formatNumber(Math.floor(gameState.steam)));
   safeSetText('#steamPerSec',     formatNumber(totalProd) + '/s');
   safeSetText('#steamTotal',      formatNumber(gameState.steamTotal));
@@ -752,14 +730,11 @@ function updateDisplay() {
 function syncAliasIds() {
   const map = {
     'steamCounter':         () => formatNumber(Math.floor(gameState.steam)),
-    'steamRateTotal':       () => formatNumber(gameState.steamPerSecond + gameState.steamPerSecondBoost),
-    'steamPerSecondBoost':  () => formatNumber(gameState.steamPerSecondBoost),
     'materialCount':        () => Object.values(gameState.materials||{}).reduce((a,b)=>a+b,0),
     'goldTotalDisplay':     async () => { const g = await getGold(); return g; },
     'gearCount':            () => Object.values(gameState.gears||{}).reduce((a,b)=>a+b,0),
     'artisanCount':         () => getTotalUnits(),
     'ringCountDisplay':     () => gameState.prestigeCount,
-    'currentBoostDisplay':  () => Math.round(gameState.clickBoost) + '%',
     'steamTotalDisplay':    () => formatNumber(gameState.steamTotal),
     'steamTotal':           () => formatNumber(gameState.steamTotal),
   };
@@ -782,14 +757,7 @@ function updateMilestone() {
   safeSetStyle('#milestoneProgress', 'width', pct.toFixed(1) + '%');
 }
 
-function updateBoostDisplay() {
-  const maxBoost = getMaxBoost();
-  const pct      = Math.round(gameState.clickBoost);
-  const barPct   = (gameState.clickBoost / maxBoost) * 100;
-  safeSetText('#boostPercentage', pct + '%');
-  const bar = $('#boostBar');
-  if (bar) bar.style.width = Math.min(100, barPct) + '%';
-}
+function updateBoostDisplay() {}
 
 async function updateGoldDisplay() {
   if (!goldSystemEnabled) return;
@@ -1078,6 +1046,14 @@ function initSecretQuests() {
   }
 }
 
+
+function unlockAchievement(id) {
+  if (!gameState.achievements) gameState.achievements = {};
+  if (gameState.achievements[id]) return;
+  gameState.achievements[id] = { id, unlockedAt: Date.now() };
+  const ach = ACHIEVEMENTS ? ACHIEVEMENTS.find(a => a.id === id) : null;
+  showNotification(ach ? `🏆 ${ach.name}` : `🏆 Succès débloqué : ${id}`, 'achievement');
+}
 function checkAchievements() {
     if (!goldSystemEnabled) return;
 
@@ -1373,7 +1349,11 @@ function checkQuests() {
     updateQuestProgress('all_upgrades_max', 0);
 }
 
-async function claimQuest(questId) {
+async 
+function triggerCoinExplosion(x, y) {
+  // Animation coins désactivée — stub silencieux
+}
+function claimQuest(questId) {
     let quest = null;
     let questCategory = null;
 
@@ -1641,7 +1621,6 @@ function loadGameState() {
 // ═══════════════════════════════════════════════════════════
 
 function gameLoop() {
-  const total = gameState.steamPerSecond + gameState.steamPerSecondBoost;
   if (total > 0) {
     gameState.steam      += total;
     gameState.steamTotal += total;
@@ -1993,7 +1972,6 @@ let gearRotation  = 0;
 let crankRotation = 0;
 
 function tickGearVisual() {
-  const prod  = gameState.steamPerSecond + gameState.steamPerSecondBoost;
   const speed = Math.min(6, Math.log10(Math.max(1, prod)) * 0.7);
   gearRotation = (gearRotation + speed) % 360;
   const gear = document.getElementById('mainGear');
@@ -2005,14 +1983,12 @@ function setCrankVisual(angleDeg) {
   const arm = document.getElementById('crankArm');
   if (arm) arm.setAttribute('transform', `rotate(${crankRotation}, 40, 80)`);
   const maxB = getMaxBoost();
-  gameState.clickBoost = ((crankRotation + 200) / 400) * maxB;
   calculateProduction();
   updateBoostDisplay();
   updateManivelleUI();
 }
 
 function updateManivelleUI() {
-  const pct = gameState.clickBoost;
   const max = getMaxBoost();
   const fill = document.getElementById('manivelleBoostFill');
   const txt  = document.getElementById('manivelleBoostPct');
@@ -2051,7 +2027,6 @@ const _origDecayBoost = decayBoost;
 decayBoost = function() {
   _origDecayBoost();
   if (Math.abs(crankRotation) > 1) {
-    const targetAngle = (gameState.clickBoost / getMaxBoost()) * 400 - 200;
     crankRotation += (targetAngle - crankRotation) * 0.08;
     const arm = document.getElementById('crankArm');
     if (arm) arm.setAttribute('transform', `rotate(${crankRotation}, 40, 80)`);
