@@ -1043,7 +1043,7 @@ function checkAchievements() {
                 unlocked = gameState.dailyQuestsCompleted >= req.value;
                 break;
             case 'all_upgrades_max':
-                unlocked = PLAYER_UPGRADES.every(upgrade => 
+                unlocked = PLAYER_UPGRADES.every(upgrade =>
                     (gameState.playerUpgrades[upgrade.type] || 0) >= upgrade.maxLevel
                 );
                 break;
@@ -1245,7 +1245,7 @@ function updateQuestProgress(type, amount = 1) {
                 }
                 return;
             case 'all_upgrades_max':
-                const allMaxed = PLAYER_UPGRADES.every(upgrade => 
+                const allMaxed = PLAYER_UPGRADES.every(upgrade =>
                     (gameState.playerUpgrades[upgrade.type] || 0) >= upgrade.maxLevel
                 );
                 currentValue = allMaxed ? 1 : 0;
@@ -1856,7 +1856,7 @@ function updateRecentAchievements() {
         return;
     }
 
-    const achievementsHTML = gameState.recentAchievements.map(achievement => 
+    const achievementsHTML = gameState.recentAchievements.map(achievement =>
         `<div onclick="showAchievementDetails('${achievement.message}')" style="font-size: 12px; color: var(--parchment); margin-bottom: 8px; padding: 8px; background: rgba(0, 0, 0, 0.4); border-radius: 6px; border: 1px solid var(--brass); cursor: pointer; transition: all 0.3s ease;" onmouseover="this.style.backgroundColor='rgba(212, 175, 55, 0.1)'" onmouseout="this.style.backgroundColor='rgba(0, 0, 0, 0.4)'"><div style="color: var(--brass-light); font-weight: bold;">${achievement.goldAmount > 0 ? '+' + achievement.goldAmount + ' 🏆' : '🏆'}</div><div style="font-family: 'Crimson Text', serif;">${achievement.message}</div></div>`
     ).join('');
 
